@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -102,6 +103,12 @@ fun WeatherDashboardScreen(
         }
 
 
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+    OutlinedButton(
+        onClick = { }
+    ) {
+        Text("⚠️ Simulate Error")
     }
     if (weatherState.loadingProgress.isNotEmpty()) {
         Spacer(modifier = Modifier.height(8.dp))

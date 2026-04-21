@@ -25,6 +25,9 @@ class WeatherViewModel : ViewModel() {
         loadWeatherData()
 
     }
+    fun toggleErrorSimulation(){
+        repository.toggleErrorSimulation()
+    }
 
     fun loadWeatherData() {
         viewModelScope.launch {
@@ -35,23 +38,13 @@ class WeatherViewModel : ViewModel() {
             )
 
             try {
-                coroutineScope {
-                    _weatherState.value = _weatherState.value.copy(
-                        loadingProgress = "Загружаем температуру, влажность, скорость ветра..."
-                    )
-
-                    val temperatureDeferred = async { repository.fetchTemperature() }
-                    val humidityDeferred = async { repository.fetchHumidity() }
-                    val windSpeedDeferred = async { repository.fetchWindSpeed() }
-
-                    val temperature = temperatureDeferred.await()
-                    val humidity = humidityDeferred.await()
-                    val windSpeed = windSpeedDeferred.await()
-
-                    _weatherState.value = _weatherState.value.copy(
-                        loadingProgress = "Вычисление индекса погоды..."
-                    )
-
+                coroutineScope { // Создаём scope, который НЕ отменяет родителя при ошибке ←
+                    val tempDeferred = async { repository.fetchTemperature() }
+                    val humDeferred = async { repository.fetchHumidity() }
+                    val windDeferred = async { repository.fetchWindSpeed() }
+                    val temperature = tempDeferred.await()
+                    val humidity = humDeferred.await()
+                    val windSpeed = windDeferred.await()
                     _weatherState.value = WeatherData(
                         temperature = temperature,
                         humidity = humidity,
@@ -68,6 +61,7 @@ class WeatherViewModel : ViewModel() {
                     loadingProgress = ""
                 )
             }
+
         }
     }
 }
