@@ -1,6 +1,7 @@
 package com.lobodina.weatherdashboard.viewmodel
 
 
+import android.util.Log.e
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lobodina.weatherdashboard.data.WeatherData
@@ -32,23 +33,31 @@ class WeatherViewModel : ViewModel() {
                 error = null
             )
             try {
-                val temperature = repository.fetchTemperature()  // 2 сек
-                _weatherState.value = _weatherState.value.copy(temperature = temperature)
-                val humidity = repository.fetchHumidity()  // + 1.5 сек
-                _weatherState.value = _weatherState.value.copy(humidity = humidity)
-                val windSpeed = repository.fetchWindSpeed()  // + 1 сек
-                _weatherState.value = _weatherState.value.copy(windSpeed = windSpeed)
-                _weatherState.value = _weatherState.value.copy(isLoading = false)
 
-            }
-            catch (e: Exception) {
+                val temperatureDeferred = async { repository.fetchTemperature() }
+                val humidityDeferred = async { repository.fetchHumidity() }
+                val windSpeedDeferred = async { repository.fetchWindSpeed() }
+
+                val temperature = temperatureDeferred.await()
+                val humidity = humidityDeferred.await()
+                val windSpeed = windSpeedDeferred.await()
+
+                _weatherState.value = WeatherData(
+                    temperature = temperature,
+                    humidity = humidity,
+                    windSpeed = windSpeed,
+                    isLoading = false,
+                    error = null
+                )
+            } catch (e: Exception) {
                 _weatherState.value = _weatherState.value.copy(
                     isLoading = false,
                     error = "Ошибка загрузки: ${e.message}"
                 )
+            }
         }
     }
 }
 
 
-}
+
