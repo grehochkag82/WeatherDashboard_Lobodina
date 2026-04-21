@@ -111,7 +111,15 @@ fun WeatherDashboardScreen(
                 style = MaterialTheme.typography.bodyMedium
             )
         }
-
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ){
+        Text(
+            text = "🔄 Auto-refresh every 10 seconds",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.secondary
+        )}
 
     }
     Spacer(modifier = Modifier.height(8.dp))
@@ -128,6 +136,7 @@ fun WeatherDashboardScreen(
             color = MaterialTheme.colorScheme.secondary
         )
     }
+
 }
 
 @Composable

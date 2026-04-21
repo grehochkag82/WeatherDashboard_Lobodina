@@ -23,11 +23,25 @@ class WeatherViewModel : ViewModel() {
 
     init {
         loadWeatherData()
-
+        startAutoRefresh()
+        //viewModelScope автоматически отменит корутину при onCleared()
     }
 
     fun toggleErrorSimulation() {
         repository.toggleErrorSimulation()
+    }
+
+    private fun startAutoRefresh() {
+        viewModelScope.launch {
+            flow {
+                while (true) {
+                    delay(10000)
+                    emit(Unit)
+                }
+            }.collect {
+                loadWeatherData()
+            }
+        }
     }
     /**
      * Демонстрация работы диспетчеров:
