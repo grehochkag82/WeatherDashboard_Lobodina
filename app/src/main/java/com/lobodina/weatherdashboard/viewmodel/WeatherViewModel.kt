@@ -30,34 +30,48 @@ class WeatherViewModel : ViewModel() {
         viewModelScope.launch {
             _weatherState.value = _weatherState.value.copy(
                 isLoading = true,
-                error = null
+                error = null,
+                loadingProgress = "Начинаем загрузку данных о погоде..."
             )
+
             try {
+                coroutineScope {
+                    _weatherState.value = _weatherState.value.copy(
+                        loadingProgress = "Загружаем температуру, влажность, скорость ветра..."
+                    )
 
-                val temperatureDeferred = async { repository.fetchTemperature() }
-                val humidityDeferred = async { repository.fetchHumidity() }
-                val windSpeedDeferred = async { repository.fetchWindSpeed() }
+                    val temperatureDeferred = async { repository.fetchTemperature() }
+                    val humidityDeferred = async { repository.fetchHumidity() }
+                    val windSpeedDeferred = async { repository.fetchWindSpeed() }
 
-                val temperature = temperatureDeferred.await()
-                val humidity = humidityDeferred.await()
-                val windSpeed = windSpeedDeferred.await()
+                    val temperature = temperatureDeferred.await()
+                    val humidity = humidityDeferred.await()
+                    val windSpeed = windSpeedDeferred.await()
 
-                _weatherState.value = WeatherData(
-                    temperature = temperature,
-                    humidity = humidity,
-                    windSpeed = windSpeed,
-                    isLoading = false,
-                    error = null
-                )
+                    _weatherState.value = _weatherState.value.copy(
+                        loadingProgress = "Вычисление индекса погоды..."
+                    )
+
+                    _weatherState.value = WeatherData(
+                        temperature = temperature,
+                        humidity = humidity,
+                        windSpeed = windSpeed,
+                        isLoading = false,
+                        error = null,
+                        loadingProgress = "Загрузка завершена!"
+                    )
+                }
             } catch (e: Exception) {
                 _weatherState.value = _weatherState.value.copy(
                     isLoading = false,
-                    error = "Ошибка загрузки: ${e.message}"
+                    error = "Ошибка загрузки: ${e.message}",
+                    loadingProgress = ""
                 )
             }
         }
     }
 }
+
 
 
 
